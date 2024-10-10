@@ -1,0 +1,23 @@
+name: Publish Docker Image
+
+on:
+  push:
+    tags:
+      - 'v*'  # Esto asegura que el workflow se ejecute cuando crees un tag que comience con 'v'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Log in to Docker Hub
+      run: echo "${{ secrets.DOCKER_HUB_TOKEN }}" | docker login -u "${{ secrets.DOCKER_HUB_USERNAME }}" --password-stdin
+
+    - name: Build and push Docker image
+      run: |
+        docker build -t my_nginx:${{ github.ref_name }} .
+        docker tag my_nginx:${{ github.ref_name }} xguille/my_nginx:${{ github.ref_name }}
+        docker push xguille/my_nginx:${{ github.ref_name }}
